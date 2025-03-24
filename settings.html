@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>设置</h1>
+        <div class="input-group">
+            <label for="B1">高价卡:</label>
+            <input type="number" id="B1">
+        </div>
+        <div class="input-group">
+            <label for="B2">低价卡:</label>
+            <input type="number" id="B2">
+        </div>
+        <div class="input-group">
+            <label for="D">D 元:</label>
+            <input type="number" id="D">
+        </div>
+        <div class="input-group">
+            <label for="E">加油员:</label>
+            <input type="number" id="E">
+        </div>
+        <div class="input-group">
+            <label for="G">尿素单价:</label>
+            <input type="number" id="G">
+        </div>
+        <div class="input-group">
+            <label for="image1">上传微信付款图片:</label>
+            <input type="file" id="image1-upload" accept="image/*">
+        </div>
+        <div class="input-group">
+            <label for="image2">上传信用卡付款图片:</label>
+            <input type="file" id="image2-upload" accept="image/*">
+        </div>
+        <div class="input-group">
+            <label for="image3">上传加入群聊图片:</label>
+            <input type="file" id="image3-upload" accept="image/*">
+        </div>
+        <button id="save-settings" class="primary-button">保存</button>
+        <button id="back-home" class="secondary-button">返回首页</button>
+    </div>
+
+    <script>
+        // 从 localStorage 加载上一次的设置
+        document.getElementById('B1').value = localStorage.getItem('B1') || 0;
+        document.getElementById('B2').value = localStorage.getItem('B2') || 0;
+        document.getElementById('D').value = localStorage.getItem('D') || 0;
+        document.getElementById('E').value = localStorage.getItem('E') || 0;
+        document.getElementById('G').value = localStorage.getItem('G') || 0;
+
+        // 保存设置按钮逻辑
+        document.getElementById('save-settings').addEventListener('click', function () {
+            // 保存高价卡、低价卡、D 元、加油员、尿素单价的值
+            localStorage.setItem('B1', document.getElementById('B1').value);
+            localStorage.setItem('B2', document.getElementById('B2').value);
+            localStorage.setItem('D', document.getElementById('D').value);
+            localStorage.setItem('E', document.getElementById('E').value);
+            localStorage.setItem('G', document.getElementById('G').value);
+
+            // 保存图片
+            const imageUploads = [
+                document.getElementById('image1-upload'),
+                document.getElementById('image2-upload'),
+                document.getElementById('image3-upload')
+            ];
+
+            imageUploads.forEach((upload, index) => {
+                const file = upload.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        localStorage.setItem(`image${index + 1}`, e.target.result); // 保存图片的 Base64 数据
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            alert('设置已保存！');
+        });
+
+        // 返回首页按钮逻辑
+        document.getElementById('back-home').addEventListener('click', function () {
+            window.location.href = 'index.html'; // 跳转到首页
+        });
+    </script>
+</body>
+</html>

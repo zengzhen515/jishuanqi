@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计算器</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 最终结果显示 -->
+        <div class="result">
+            <span id="final-result">0</span>
+        </div>
+
+        <!-- 金额输入 -->
+        <div class="input-group">
+            <label for="A">金额:</label>
+            <input type="number" id="A" placeholder="输入金额">
+        </div>
+
+        <!-- 高价卡和低价卡开关按钮 -->
+        <div class="input-group">
+            <label>选择卡类型:</label>
+            <div class="switch-buttons">
+                <button id="B1-toggle" class="switch-button">高价卡</button>
+                <button id="B2-toggle" class="switch-button">低价卡</button>
+            </div>
+        </div>
+
+        <!-- 加油员开关按钮 -->
+        <div class="input-group">
+            <label for="E">加油员:</label>
+            <button id="E-toggle" class="switch-button">关闭</button>
+        </div>
+
+        <!-- 尿素数量 -->
+        <div class="input-group">
+            <label for="G">尿素数量:</label>
+            <input type="number" id="G" min="0" value="0" placeholder="输入尿素数量">
+        </div>
+
+        <!-- 确认按钮 -->
+        <button id="confirm" class="primary-button">确认</button>
+
+        <!-- 图片按钮 -->
+        <div class="image-buttons">
+            <button id="image1" class="image-button">微信付款</button>
+            <button id="image2" class="image-button">信用卡付款</button>
+            <button id="image3" class="image-button">加入群聊</button>
+        </div>
+
+        <!-- 设置按钮 -->
+        <button id="settings" class="secondary-button">设置</button>
+
+        <!-- 记录查询按钮 -->
+        <button id="show-records" class="secondary-button">记录查询</button>
+
+        <!-- 记录显示区域 -->
+        <div id="records-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>记录查询</h2>
+                <ul id="records-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
