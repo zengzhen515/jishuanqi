@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const EToggle = document.getElementById('E-toggle');
     const G = document.getElementById('G');
     const finalResult = document.getElementById('final-result');
+    const volumeResult = document.getElementById('volume-result');
     const confirmBtn = document.getElementById('confirm');
     const settingsBtn = document.getElementById('settings');
     const showRecordsBtn = document.getElementById('show-records');
@@ -12,6 +13,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const recordsList = document.getElementById('records-list');
     const closeModal = document.querySelector('.close');
     const imageButtons = ['image1', 'image2', 'image3'];
+    const decrementBtn = document.querySelector('.decrement');
+    const incrementBtn = document.querySelector('.increment');
 
     // 从 localStorage 加载设置
     const B1Value = localStorage.getItem('B1') || 0;
@@ -56,6 +59,17 @@ document.addEventListener('DOMContentLoaded', function () {
         calculate(); // 实时计算
     });
 
+    // 尿素数量加减按钮逻辑
+    decrementBtn.addEventListener('click', function() {
+        G.value = Math.max(0, parseInt(G.value) - 1);
+        calculate();
+    });
+
+    incrementBtn.addEventListener('click', function() {
+        G.value = parseInt(G.value) + 1;
+        calculate();
+    });
+
     // 实时计算逻辑
     function calculate() {
         const AValue = parseFloat(A.value) || 0;
@@ -70,6 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const finalValue = FValue + GTotal;
 
         finalResult.textContent = finalValue.toFixed(2);
+        volumeResult.textContent = CValue.toFixed(2); // 显示升数
     }
 
     // 输入框实时计算
@@ -83,7 +98,8 @@ document.addEventListener('DOMContentLoaded', function () {
             // 保存记录
             const record = {
                 time: new Date().toLocaleString(),
-                value: finalValue.toFixed(2)
+                value: finalValue.toFixed(2),
+                volume: volumeResult.textContent
             };
             saveRecord(record);
             alert('记录已保存！');
@@ -103,9 +119,8 @@ document.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', function () {
             const imageUrl = localStorage.getItem(`image${index + 1}`);
             if (imageUrl) {
-                // 创建新窗口显示图片
-                const imageWindow = window.open('', '_blank', 'width=600,height=400');
-                imageWindow.document.write(`
+                const newWindow = window.open('', '_blank', 'width=600,height=400');
+                newWindow.document.write(`
                     <html>
                         <head>
                             <title>图片 ${index + 1}</title>
@@ -133,8 +148,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 `);
 
                 // 点击任意位置关闭图片
-                imageWindow.document.body.addEventListener('click', function () {
-                    imageWindow.close();
+                newWindow.document.body.addEventListener('click', function () {
+                    newWindow.close();
                 });
             } else {
                 alert('请先在设置页面上传图片');
@@ -172,11 +187,32 @@ document.addEventListener('DOMContentLoaded', function () {
     function loadRecords() {
         const records = JSON.parse(localStorage.getItem('records')) || [];
         recordsList.innerHTML = '';
-        records.forEach(record => {
+        records.forEach((record, index) => {
             const li = document.createElement('li');
-            li.textContent = `${record.time} - 最终值: ${record.value}`;
+            li.innerHTML = `
+                <div>
+                    <span>${record.time}</span><br>
+                    <span>金额: ${record.value}元</span><br>
+                    <span>升数: ${record.volume}升</span>
+                </div>
+            `;
+            const deleteButton = document.createElement('span');
+            deleteButton.textContent = '删除';
+            deleteButton.className = 'delete-record';
+            deleteButton.addEventListener('click', function () {
+                deleteRecord(index);
+            });
+            li.appendChild(deleteButton);
             recordsList.appendChild(li);
         });
+    }
+
+    // 删除记录
+    function deleteRecord(index) {
+        let records = JSON.parse(localStorage.getItem('records')) || [];
+        records.splice(index, 1); // 删除指定记录
+        localStorage.setItem('records', JSON.stringify(records));
+        loadRecords(); // 重新加载记录
     }
 
     // 清理过期记录（3 天后自动覆盖或删除）

@@ -23,10 +23,25 @@ body {
     margin-bottom: 20px;
 }
 
-.result span {
-    font-size: 2.5rem;
+.final-value {
+    margin-bottom: 5px;
+}
+
+.final-value #final-result {
+    font-size: 3rem;
     font-weight: bold;
-    color: #333;
+    color: #00bcd4;
+}
+
+.volume #volume-result {
+    font-size: 1.5rem;
+    color: #666;
+}
+
+.unit {
+    font-size: 1rem;
+    color: #666;
+    margin-left: 5px;
 }
 
 .input-group {
@@ -112,6 +127,52 @@ body {
     background-color: #218838;
 }
 
+/* 尿素数量和加油员在同一行 */
+.inline-inputs {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.urea-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.number-input {
+    display: flex;
+    align-items: center;
+}
+
+.number-input input {
+    width: 50px;
+    text-align: center;
+    padding: 5px;
+    margin: 0 5px;
+}
+
+.number-input button {
+    width: 30px;
+    height: 30px;
+    background-color: #ddd;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.number-input button:hover {
+    background-color: #ccc;
+}
+
+.e-toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 /* 模态框样式 */
 .modal {
     display: none;
@@ -150,8 +211,35 @@ body {
 #records-list li {
     padding: 10px;
     border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 #records-list li:last-child {
     border-bottom: none;
+}
+
+.delete-record {
+    color: #ff0000;
+    cursor: pointer;
+}/* 设置页面的单行排列 */
+.inline-settings {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.inline-settings label {
+    min-width: 100px;
+    text-align: right;
+}
+
+.inline-settings input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
 }

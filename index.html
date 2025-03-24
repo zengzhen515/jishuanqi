@@ -10,12 +10,18 @@
     <div class="container">
         <!-- 最终结果显示 -->
         <div class="result">
-            <span id="final-result">0</span>
+            <div class="final-value">
+                <span id="final-result">0</span>
+                <span class="unit">元</span>
+            </div>
+            <div class="volume">
+                <span id="volume-result">0</span>
+                <span class="unit">升</span>
+            </div>
         </div>
 
         <!-- 金额输入 -->
         <div class="input-group">
-            <label for="A">金额:</label>
             <input type="number" id="A" placeholder="输入金额">
         </div>
 
@@ -28,16 +34,20 @@
             </div>
         </div>
 
-        <!-- 加油员开关按钮 -->
-        <div class="input-group">
-            <label for="E">加油员:</label>
-            <button id="E-toggle" class="switch-button">关闭</button>
-        </div>
-
-        <!-- 尿素数量 -->
-        <div class="input-group">
-            <label for="G">尿素数量:</label>
-            <input type="number" id="G" min="0" value="0" placeholder="输入尿素数量">
+        <!-- 尿素数量和加油员 -->
+        <div class="input-group inline-inputs">
+            <div class="urea-control">
+                <label>尿素数量:</label>
+                <div class="number-input">
+                    <button class="decrement">-</button>
+                    <input type="number" id="G" min="0" value="0">
+                    <button class="increment">+</button>
+                </div>
+            </div>
+            <div class="e-toggle-container">
+                <label for="E">加油员:</label>
+                <button id="E-toggle" class="switch-button">关闭</button>
+            </div>
         </div>
 
         <!-- 确认按钮 -->
