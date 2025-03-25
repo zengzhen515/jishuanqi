@@ -3,73 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>计算器</title>
+    <title>油卡计算器</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <!-- 最终结果显示 -->
-        <div class="result">
-            <div class="final-value">
-                <span id="final-result">0</span>
-                <span class="unit">元</span>
-            </div>
-            <div class="volume">
-                <span id="volume-result">0</span>
-                <span class="unit">升</span>
-            </div>
+        <!-- 1. 最终结果显示 -->
+        <div class="final-result">
+            <span id="final-result">0</span>
         </div>
 
-        <!-- 金额输入 -->
+        <!-- 2. 优惠价和升数显示 -->
+        <div class="info-row">
+            <div class="info-item left">优惠价: <span id="discount-price">0</span>元</div>
+            <div class="info-item right">升数: <span id="fuel-liter">0</span>升</div>
+        </div>
+
+        <!-- 3. 金额输入 -->
         <div class="input-group">
-            <input type="number" id="A" placeholder="输入金额">
+            <input type="text" id="amount-input" placeholder="输入金额 (如: 100+200)">
         </div>
 
-        <!-- 高价卡和低价卡开关按钮 -->
-        <div class="input-group">
-            <label>选择卡类型:</label>
-            <div class="switch-buttons">
-                <button id="B1-toggle" class="switch-button">高价卡</button>
-                <button id="B2-toggle" class="switch-button">低价卡</button>
-            </div>
+        <!-- 4. 高价卡和低价卡按钮 -->
+        <div class="card-buttons">
+            <button id="high-card" class="card-button">高价卡 <span id="high-card-value">0</span>元</button>
+            <button id="low-card" class="card-button">低价卡 <span id="low-card-value">0</span>元</button>
         </div>
 
-        <!-- 尿素数量和加油员 -->
-        <div class="input-group inline-inputs">
-            <div class="urea-control">
-                <label>尿素数量:</label>
-                <div class="number-input">
-                    <button class="decrement">-</button>
-                    <input type="number" id="G" min="0" value="0">
-                    <button class="increment">+</button>
-                </div>
+        <!-- 5. 尿素数量和加油员 -->
+        <div class="urea-row">
+            <div class="urea-controls">
+                <button class="urea-btn" id="urea-minus">-</button>
+                <input type="number" id="urea-input" value="0" min="0" placeholder="尿素">
+                <button class="urea-btn" id="urea-plus">+</button>
             </div>
-            <div class="e-toggle-container">
-                <label for="E">加油员:</label>
-                <button id="E-toggle" class="switch-button">关闭</button>
-            </div>
+            <button id="attendant-btn" class="attendant-button">加油员</button>
         </div>
 
-        <!-- 确认按钮 -->
-        <button id="confirm" class="primary-button">确认</button>
+        <!-- 6. 确认按钮 -->
+        <button id="confirm-btn" class="primary-button">确认保存</button>
 
-        <!-- 图片按钮 -->
+        <!-- 7. 图片按钮 -->
         <div class="image-buttons">
-            <button id="image1" class="image-button">微信付款</button>
-            <button id="image2" class="image-button">信用卡付款</button>
-            <button id="image3" class="image-button">加入群聊</button>
+            <button id="wechat-pay" class="image-button">微信付款</button>
+            <button id="credit-card" class="image-button">信用卡付款</button>
+            <button id="group-chat" class="image-button">加入群聊</button>
         </div>
 
-        <!-- 设置按钮 -->
-        <button id="settings" class="secondary-button">设置</button>
+        <!-- 8. 设置和记录查询按钮 -->
+        <div class="action-buttons">
+            <button id="settings-btn" class="secondary-button">设置</button>
+            <button id="records-btn" class="secondary-button">记录查询</button>
+        </div>
 
-        <!-- 记录查询按钮 -->
-        <button id="show-records" class="secondary-button">记录查询</button>
-
-        <!-- 记录显示区域 -->
+        <!-- 记录查询模态框 -->
         <div id="records-modal" class="modal">
             <div class="modal-content">
-                <span class="close">&times;</span>
+                <span class="close-btn">&times;</span>
                 <h2>记录查询</h2>
                 <ul id="records-list"></ul>
             </div>

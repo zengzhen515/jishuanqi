@@ -9,83 +9,106 @@
 <body>
     <div class="container">
         <h1>设置</h1>
-        <div class="input-group inline-settings">
-            <label for="B1">高价卡:</label>
-            <input type="number" id="B1">
+        
+        <div class="input-group">
+            <label for="high-card-input">高价卡值:</label>
+            <input type="number" id="high-card-input" step="0.01">
         </div>
-        <div class="input-group inline-settings">
-            <label for="B2">低价卡:</label>
-            <input type="number" id="B2">
+        
+        <div class="input-group">
+            <label for="low-card-input">低价卡值:</label>
+            <input type="number" id="low-card-input" step="0.01">
         </div>
-        <div class="input-group inline-settings">
-            <label for="D">优惠价:</label>
-            <input type="number" id="D">
+        
+        <div class="input-group">
+            <label for="discount-input">优惠价 (D元):</label>
+            <input type="number" id="discount-input" step="0.01">
         </div>
-        <div class="input-group inline-settings">
-            <label for="E">加油员:</label>
-            <input type="number" id="E">
+        
+        <div class="input-group">
+            <label for="attendant-input">加油员值:</label>
+            <input type="number" id="attendant-input" step="0.01">
         </div>
-        <div class="input-group inline-settings">
-            <label for="G">尿素单价:</label>
-            <input type="number" id="G">
+        
+        <div class="input-group">
+            <label for="urea-input">尿素单价:</label>
+            <input type="number" id="urea-input" step="0.01">
         </div>
-        <div class="input-group inline-settings">
-            <label for="image1">上传微信付款图片:</label>
-            <input type="file" id="image1-upload" accept="image/*">
+        
+        <div class="input-group">
+            <label for="wechat-image">微信付款图片:</label>
+            <input type="file" id="wechat-image" accept="image/*">
         </div>
-        <div class="input-group inline-settings">
-            <label for="image2">上传信用卡付款图片:</label>
-            <input type="file" id="image2-upload" accept="image/*">
+        
+        <div class="input-group">
+            <label for="credit-image">信用卡付款图片:</label>
+            <input type="file" id="credit-image" accept="image/*">
         </div>
-        <div class="input-group inline-settings">
-            <label for="image3">上传加入群聊图片:</label>
-            <input type="file" id="image3-upload" accept="image/*">
+        
+        <div class="input-group">
+            <label for="group-image">加入群聊图片:</label>
+            <input type="file" id="group-image" accept="image/*">
         </div>
-        <button id="save-settings" class="primary-button">保存</button>
-        <button id="back-home" class="secondary-button">返回首页</button>
+        
+        <button id="save-btn" class="primary-button">保存设置</button>
+        <button id="back-btn" class="secondary-button">返回</button>
     </div>
 
     <script>
-        // 从 localStorage 加载上一次的设置
-        document.getElementById('B1').value = localStorage.getItem('B1') || 0;
-        document.getElementById('B2').value = localStorage.getItem('B2') || 0;
-        document.getElementById('D').value = localStorage.getItem('D') || 0;
-        document.getElementById('E').value = localStorage.getItem('E') || 0;
-        document.getElementById('G').value = localStorage.getItem('G') || 0;
+        document.addEventListener('DOMContentLoaded', function() {
+            // 加载保存的设置
+            document.getElementById('high-card-input').value = localStorage.getItem('highCardValue') || '';
+            document.getElementById('low-card-input').value = localStorage.getItem('lowCardValue') || '';
+            document.getElementById('discount-input').value = localStorage.getItem('discountPrice') || '';
+            document.getElementById('attendant-input').value = localStorage.getItem('attendantValue') || '';
+            document.getElementById('urea-input').value = localStorage.getItem('ureaPrice') || '';
 
-        // 保存设置按钮逻辑
-        document.getElementById('save-settings').addEventListener('click', function () {
-            // 保存高价卡、低价卡、优惠价、加油员、尿素单价的值
-            localStorage.setItem('B1', document.getElementById('B1').value);
-            localStorage.setItem('B2', document.getElementById('B2').value);
-            localStorage.setItem('D', document.getElementById('D').value);
-            localStorage.setItem('E', document.getElementById('E').value);
-            localStorage.setItem('G', document.getElementById('G').value);
+            // 保存按钮事件
+            document.getElementById('save-btn').addEventListener('click', function() {
+                // 验证输入
+                const highCardValue = document.getElementById('high-card-input').value;
+                const lowCardValue = document.getElementById('low-card-input').value;
+                const discountPrice = document.getElementById('discount-input').value;
+                const attendantValue = document.getElementById('attendant-input').value;
+                const ureaPrice = document.getElementById('urea-input').value;
 
-            // 保存图片
-            const imageUploads = [
-                document.getElementById('image1-upload'),
-                document.getElementById('image2-upload'),
-                document.getElementById('image3-upload')
-            ];
+                if (!highCardValue || !lowCardValue || !discountPrice || !attendantValue || !ureaPrice) {
+                    alert('请填写所有数值设置！');
+                    return;
+                }
 
-            imageUploads.forEach((upload, index) => {
-                const file = upload.files[0];
+                // 保存数值
+                localStorage.setItem('highCardValue', highCardValue);
+                localStorage.setItem('lowCardValue', lowCardValue);
+                localStorage.setItem('discountPrice', discountPrice);
+                localStorage.setItem('attendantValue', attendantValue);
+                localStorage.setItem('ureaPrice', ureaPrice);
+
+                // 保存图片
+                saveImage('wechat-image', 'wechatPayImage');
+                saveImage('credit-image', 'creditCardImage');
+                saveImage('group-image', 'groupChatImage');
+
+                alert('设置已保存！');
+                window.location.href = 'index.html';
+            });
+
+            // 返回按钮事件
+            document.getElementById('back-btn').addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+
+            // 保存图片函数
+            function saveImage(inputId, storageKey) {
+                const file = document.getElementById(inputId).files[0];
                 if (file) {
                     const reader = new FileReader();
-                    reader.onload = function (e) {
-                        localStorage.setItem(`image${index + 1}`, e.target.result); // 保存图片的 Base64 数据
+                    reader.onload = function(e) {
+                        localStorage.setItem(storageKey, e.target.result);
                     };
                     reader.readAsDataURL(file);
                 }
-            });
-
-            alert('设置已保存！');
-        });
-
-        // 返回首页按钮逻辑
-        document.getElementById('back-home').addEventListener('click', function () {
-            window.location.href = 'index.html'; // 跳转到首页
+            }
         });
     </script>
 </body>

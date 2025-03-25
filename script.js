@@ -1,228 +1,328 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const A = document.getElementById('A');
-    const B1Toggle = document.getElementById('B1-toggle');
-    const B2Toggle = document.getElementById('B2-toggle');
-    const EToggle = document.getElementById('E-toggle');
-    const G = document.getElementById('G');
-    const finalResult = document.getElementById('final-result');
-    const volumeResult = document.getElementById('volume-result');
-    const confirmBtn = document.getElementById('confirm');
-    const settingsBtn = document.getElementById('settings');
-    const showRecordsBtn = document.getElementById('show-records');
-    const recordsModal = document.getElementById('records-modal');
-    const recordsList = document.getElementById('records-list');
-    const closeModal = document.querySelector('.close');
-    const imageButtons = ['image1', 'image2', 'image3'];
-    const decrementBtn = document.querySelector('.decrement');
-    const incrementBtn = document.querySelector('.increment');
+document.addEventListener('DOMContentLoaded', function() {
+    // 获取所有DOM元素
+    const elements = {
+        amountInput: document.getElementById('amount-input'),
+        highCardBtn: document.getElementById('high-card'),
+        lowCardBtn: document.getElementById('low-card'),
+        highCardValue: document.getElementById('high-card-value'),
+        lowCardValue: document.getElementById('low-card-value'),
+        ureaInput: document.getElementById('urea-input'),
+        ureaMinusBtn: document.getElementById('urea-minus'),
+        ureaPlusBtn: document.getElementById('urea-plus'),
+        attendantBtn: document.getElementById('attendant-btn'),
+        finalResult: document.getElementById('final-result'),
+        discountPrice: document.getElementById('discount-price'),
+        fuelLiter: document.getElementById('fuel-liter'),
+        confirmBtn: document.getElementById('confirm-btn'),
+        settingsBtn: document.getElementById('settings-btn'),
+        recordsBtn: document.getElementById('records-btn'),
+        recordsModal: document.getElementById('records-modal'),
+        recordsList: document.getElementById('records-list'),
+        closeBtn: document.querySelector('.close-btn'),
+        wechatPayBtn: document.getElementById('wechat-pay'),
+        creditCardBtn: document.getElementById('credit-card'),
+        groupChatBtn: document.getElementById('group-chat')
+    };
 
-    // 从 localStorage 加载设置
-    const B1Value = localStorage.getItem('B1') || 0;
-    const B2Value = localStorage.getItem('B2') || 0;
-    const DValue = localStorage.getItem('D') || 0;
-    const EValue = localStorage.getItem('E') || 0;
-    const GValue = localStorage.getItem('G') || 0;
+    // 初始化应用状态
+    const state = {
+        selectedCard: 'high',
+        isAttendantActive: false,
+        currentAmount: 0,
+        currentUrea: 0
+    };
 
-    // 初始化高价卡和低价卡的开关状态
-    let selectedB = localStorage.getItem('selectedB') || 'B1';
-    if (selectedB === 'B1') {
-        B1Toggle.classList.add('active');
-    } else {
-        B2Toggle.classList.add('active');
+    // 加载保存的设置
+    function loadSettings() {
+        // 确保所有设置都有默认值
+        const defaults = {
+            highCardValue: '7.50',
+            lowCardValue: '7.00',
+            discountPrice: '0.50',
+            attendantValue: '0.20',
+            ureaPrice: '10.00'
+        };
+
+        // 从localStorage加载或使用默认值
+        elements.highCardValue.textContent = 
+            localStorage.getItem('highCardValue') || defaults.highCardValue;
+        elements.lowCardValue.textContent = 
+            localStorage.getItem('lowCardValue') || defaults.lowCardValue;
+        
+        // 初始化优惠价显示
+        updateDiscountDisplay();
     }
 
-    // 高价卡和低价卡开关按钮逻辑
-    B1Toggle.addEventListener('click', function () {
-        selectedB = 'B1';
-        localStorage.setItem('selectedB', selectedB);
-        B1Toggle.classList.add('active');
-        B2Toggle.classList.remove('active');
-        calculate(); // 实时计算
-    });
-
-    B2Toggle.addEventListener('click', function () {
-        selectedB = 'B2';
-        localStorage.setItem('selectedB', selectedB);
-        B2Toggle.classList.add('active');
-        B1Toggle.classList.remove('active');
-        calculate(); // 实时计算
-    });
-
-    // 加油员开关状态
-    let isEActive = false;
-
-    // 加油员开关按钮逻辑
-    EToggle.addEventListener('click', function () {
-        isEActive = !isEActive;
-        EToggle.textContent = isEActive ? '打开' : '关闭';
-        EToggle.classList.toggle('active');
-        calculate(); // 实时计算
-    });
-
-    // 尿素数量加减按钮逻辑
-    decrementBtn.addEventListener('click', function() {
-        G.value = Math.max(0, parseInt(G.value) - 1);
-        calculate();
-    });
-
-    incrementBtn.addEventListener('click', function() {
-        G.value = parseInt(G.value) + 1;
-        calculate();
-    });
-
-    // 实时计算逻辑
-    function calculate() {
-        const AValue = parseFloat(A.value) || 0;
-        const BValue = selectedB === 'B1' ? parseFloat(B1Value) : parseFloat(B2Value);
-        const DValue = parseFloat(localStorage.getItem('D')) || 0;
-        const EValue = isEActive ? parseFloat(localStorage.getItem('E')) : 0;
-        const GCount = parseFloat(G.value) || 0;
-        const GTotal = GCount * parseFloat(localStorage.getItem('G'));
-
-        const CValue = AValue / BValue;
-        const FValue = CValue * (DValue + EValue);
-        const finalValue = FValue + GTotal;
-
-        finalResult.textContent = finalValue.toFixed(2);
-        volumeResult.textContent = CValue.toFixed(2); // 显示升数
-    }
-
-    // 输入框实时计算
-    A.addEventListener('input', calculate);
-    G.addEventListener('input', calculate);
-
-    // 确认按钮逻辑
-    confirmBtn.addEventListener('click', function () {
-        const finalValue = parseFloat(finalResult.textContent);
-        if (!isNaN(finalValue)) {
-            // 保存记录
-            const record = {
-                time: new Date().toLocaleString(),
-                value: finalValue.toFixed(2),
-                volume: volumeResult.textContent
-            };
-            saveRecord(record);
-            alert('记录已保存！');
+    // 更新优惠价显示（根据加油员状态）
+    function updateDiscountDisplay() {
+        const baseDiscount = parseFloat(localStorage.getItem('discountPrice') || 0.5);
+        const attendantValue = parseFloat(localStorage.getItem('attendantValue') || 0.2);
+        
+        if (state.isAttendantActive) {
+            elements.discountPrice.textContent = (baseDiscount + attendantValue).toFixed(2);
         } else {
-            alert('请先填写有效值！');
+            elements.discountPrice.textContent = baseDiscount.toFixed(2);
         }
-    });
+    }
 
-    // 设置按钮逻辑
-    settingsBtn.addEventListener('click', function () {
-        window.location.href = 'settings.html';
-    });
-
-    // 图片按钮逻辑
-    imageButtons.forEach((buttonId, index) => {
-        const button = document.getElementById(buttonId);
-        button.addEventListener('click', function () {
-            const imageUrl = localStorage.getItem(`image${index + 1}`);
-            if (imageUrl) {
-                const newWindow = window.open('', '_blank', 'width=600,height=400');
-                newWindow.document.write(`
-                    <html>
-                        <head>
-                            <title>图片 ${index + 1}</title>
-                            <style>
-                                body, html {
-                                    margin: 0;
-                                    padding: 0;
-                                    height: 100%;
-                                    display: flex;
-                                    justify-content: center;
-                                    align-items: center;
-                                    background-color: rgba(0, 0, 0, 0.8);
-                                    cursor: pointer;
-                                }
-                                img {
-                                    max-width: 100%;
-                                    max-height: 100%;
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            <img src="${imageUrl}" alt="图片 ${index + 1}">
-                        </body>
-                    </html>
-                `);
-
-                // 点击任意位置关闭图片
-                newWindow.document.body.addEventListener('click', function () {
-                    newWindow.close();
-                });
-            } else {
-                alert('请先在设置页面上传图片');
-            }
-        });
-    });
-
-    // 记录查询按钮逻辑
-    showRecordsBtn.addEventListener('click', function () {
-        recordsModal.style.display = 'flex';
-        loadRecords();
-    });
-
-    // 关闭模态框（点击关闭按钮）
-    closeModal.addEventListener('click', function () {
-        recordsModal.style.display = 'none';
-    });
-
-    // 关闭模态框（点击模态框外部）
-    window.addEventListener('click', function (event) {
-        if (event.target === recordsModal) {
-            recordsModal.style.display = 'none';
+    // 核心计算函数
+    function calculate() {
+        // 1. 解析输入金额
+        let amount = 0;
+        if (elements.amountInput.value.includes('+')) {
+            amount = elements.amountInput.value.split('+')
+                .reduce((sum, num) => sum + (parseFloat(num.trim()) || 0), 0);
+        } else {
+            amount = parseFloat(elements.amountInput.value) || 0;
         }
-    });
+        state.currentAmount = amount;
+
+        // 2. 获取当前卡值
+        const cardValue = state.selectedCard === 'high' 
+            ? parseFloat(elements.highCardValue.textContent)
+            : parseFloat(elements.lowCardValue.textContent);
+
+        // 3. 获取优惠参数
+        const baseDiscount = parseFloat(localStorage.getItem('discountPrice') || 0.5);
+        const attendantValue = state.isAttendantActive 
+            ? parseFloat(localStorage.getItem('attendantValue') || 0.2)
+            : 0;
+        const totalDiscount = baseDiscount + attendantValue;
+
+        // 4. 获取尿素参数
+        const ureaCount = parseFloat(elements.ureaInput.value) || 0;
+        state.currentUrea = ureaCount;
+        const ureaPrice = parseFloat(localStorage.getItem('ureaPrice') || 10.0);
+
+        // 5. 计算各项值
+        const liters = amount / cardValue;
+        const discountTotal = liters * totalDiscount;
+        const ureaTotal = ureaCount * ureaPrice;
+        const total = discountTotal + ureaTotal;
+
+        // 6. 更新显示
+        elements.fuelLiter.textContent = liters.toFixed(2);
+        elements.finalResult.textContent = total.toFixed(2);
+    }
 
     // 保存记录
-    function saveRecord(record) {
+    function saveRecord() {
+        if (!state.currentAmount || state.currentAmount <= 0) {
+            alert('请输入有效的金额！');
+            return;
+        }
+
+        const record = {
+            date: new Date().toLocaleString(),
+            amount: state.currentAmount,
+            cardType: state.selectedCard === 'high' ? '高价卡' : '低价卡',
+            cardValue: state.selectedCard === 'high' 
+                ? elements.highCardValue.textContent 
+                : elements.lowCardValue.textContent,
+            liters: elements.fuelLiter.textContent,
+            discount: elements.discountPrice.textContent,
+            attendant: state.isAttendantActive ? '是' : '否',
+            urea: state.currentUrea,
+            total: elements.finalResult.textContent,
+            timestamp: Date.now()
+        };
+
+        // 保存到本地存储
         let records = JSON.parse(localStorage.getItem('records')) || [];
         records.push(record);
         localStorage.setItem('records', JSON.stringify(records));
-        clearOldRecords(); // 清理过期记录
+
+        // 重置输入
+        elements.amountInput.value = '';
+        elements.ureaInput.value = '0';
+        state.currentAmount = 0;
+        state.currentUrea = 0;
+        calculate();
+        
+        alert('记录已保存！');
     }
 
-    // 加载记录
+    // 加载和显示记录
     function loadRecords() {
+        cleanOldRecords();
+        
+        elements.recordsList.innerHTML = '';
         const records = JSON.parse(localStorage.getItem('records')) || [];
-        recordsList.innerHTML = '';
-        records.forEach((record, index) => {
+        
+        if (records.length === 0) {
+            elements.recordsList.innerHTML = '<li style="padding: 20px; text-align: center;">暂无记录</li>';
+            return;
+        }
+
+        // 按时间倒序显示
+        records.reverse().forEach((record, index) => {
             const li = document.createElement('li');
             li.innerHTML = `
-                <div>
-                    <span>${record.time}</span><br>
-                    <span>金额: ${record.value}元</span><br>
-                    <span>升数: ${record.volume}升</span>
+                <div class="record-header">
+                    <span class="record-date">${record.date}</span>
+                    <button class="delete-btn" data-index="${index}">删除</button>
                 </div>
+                <div class="record-detail">
+                    <span>金额: ${record.amount}元</span>
+                    <span>卡类型: ${record.cardType} (${record.cardValue}元)</span>
+                </div>
+                <div class="record-detail">
+                    <span>升数: ${record.liters}升</span>
+                    <span>优惠价: ${record.discount}元</span>
+                </div>
+                <div class="record-detail">
+                    <span>尿素: ${record.urea}</span>
+                    <span>加油员: ${record.attendant}</span>
+                </div>
+                <div class="record-total">总计: ${record.total}元</div>
             `;
-            const deleteButton = document.createElement('span');
-            deleteButton.textContent = '删除';
-            deleteButton.className = 'delete-record';
-            deleteButton.addEventListener('click', function () {
-                deleteRecord(index);
+            elements.recordsList.appendChild(li);
+        });
+
+        // 添加删除按钮事件
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (confirm('确定要删除这条记录吗？')) {
+                    deleteRecord(parseInt(this.getAttribute('data-index')));
+                }
             });
-            li.appendChild(deleteButton);
-            recordsList.appendChild(li);
         });
     }
 
-    // 删除记录
+    // 删除单条记录
     function deleteRecord(index) {
         let records = JSON.parse(localStorage.getItem('records')) || [];
-        records.splice(index, 1); // 删除指定记录
+        records.reverse();
+        records.splice(index, 1);
+        records.reverse();
         localStorage.setItem('records', JSON.stringify(records));
-        loadRecords(); // 重新加载记录
+        loadRecords();
     }
 
-    // 清理过期记录（3 天后自动覆盖或删除）
-    function clearOldRecords() {
+    // 清理3天前的记录
+    function cleanOldRecords() {
+        const now = Date.now();
         let records = JSON.parse(localStorage.getItem('records')) || [];
-        const now = new Date();
+        
         records = records.filter(record => {
-            const recordTime = new Date(record.time);
-            return (now - recordTime) / (1000 * 60 * 60 * 24) <= 3; // 保留 3 天内的记录
+            return now - record.timestamp <= 3 * 24 * 60 * 60 * 1000; // 3天
         });
+        
         localStorage.setItem('records', JSON.stringify(records));
     }
+
+    // 显示图片
+    function showImage(type) {
+        const imageUrl = localStorage.getItem(`${type}Image`);
+        if (imageUrl) {
+            const win = window.open('', '_blank');
+            win.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${type}</title>
+                    <style>
+                        body { margin: 0; padding: 0; display: flex; 
+                               justify-content: center; align-items: center; 
+                               height: 100vh; background: #000; cursor: pointer; }
+                        img { max-width: 100%; max-height: 100%; }
+                    </style>
+                </head>
+                <body>
+                    <img src="${imageUrl}" onclick="window.close()">
+                </body>
+                </html>
+            `);
+        } else {
+            alert('请先在设置中上传图片');
+        }
+    }
+
+    // 初始化事件监听
+    function initEventListeners() {
+        // 输入变化时计算
+        elements.amountInput.addEventListener('input', calculate);
+        elements.ureaInput.addEventListener('input', function() {
+            state.currentUrea = parseInt(this.value) || 0;
+            calculate();
+        });
+        
+        // 卡类型切换
+        elements.highCardBtn.addEventListener('click', function() {
+            state.selectedCard = 'high';
+            elements.highCardBtn.classList.add('active');
+            elements.lowCardBtn.classList.remove('active');
+            calculate();
+        });
+        
+        elements.lowCardBtn.addEventListener('click', function() {
+            state.selectedCard = 'low';
+            elements.lowCardBtn.classList.add('active');
+            elements.highCardBtn.classList.remove('active');
+            calculate();
+        });
+        
+        // 加油员切换
+        elements.attendantBtn.addEventListener('click', function() {
+            state.isAttendantActive = !state.isAttendantActive;
+            elements.attendantBtn.classList.toggle('active');
+            updateDiscountDisplay();
+            calculate();
+        });
+        
+        // 尿素数量调整
+        elements.ureaMinusBtn.addEventListener('click', function() {
+            elements.ureaInput.value = Math.max(0, parseInt(elements.ureaInput.value) - 1);
+            state.currentUrea = parseInt(elements.ureaInput.value);
+            calculate();
+        });
+        
+        elements.ureaPlusBtn.addEventListener('click', function() {
+            elements.ureaInput.value = parseInt(elements.ureaInput.value) + 1;
+            state.currentUrea = parseInt(elements.ureaInput.value);
+            calculate();
+        });
+        
+        // 主要功能按钮
+        elements.confirmBtn.addEventListener('click', saveRecord);
+        elements.settingsBtn.addEventListener('click', function() {
+            window.location.href = 'settings.html';
+        });
+        
+        elements.recordsBtn.addEventListener('click', function() {
+            loadRecords();
+            elements.recordsModal.style.display = 'flex';
+        });
+        
+        elements.closeBtn.addEventListener('click', function() {
+            elements.recordsModal.style.display = 'none';
+        });
+        
+        window.addEventListener('click', function(e) {
+            if (e.target === elements.recordsModal) {
+                elements.recordsModal.style.display = 'none';
+            }
+        });
+        
+        // 图片按钮
+        elements.wechatPayBtn.addEventListener('click', () => showImage('wechatPay'));
+        elements.creditCardBtn.addEventListener('click', () => showImage('creditCard'));
+        elements.groupChatBtn.addEventListener('click', () => showImage('groupChat'));
+    }
+
+    // 初始化应用
+    function initApp() {
+        loadSettings();
+        initEventListeners();
+        
+        // 默认选中高价卡
+        state.selectedCard = 'high';
+        elements.highCardBtn.classList.add('active');
+        
+        // 初始化计算
+        calculate();
+    }
+
+    // 启动应用
+    initApp();
 });
