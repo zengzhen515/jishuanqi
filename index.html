@@ -8,7 +8,386 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="HandheldFriendly" content="true">
     <title>油卡计算器</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 基础重置 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 全局样式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.5;
+            -webkit-text-size-adjust: 100%;
+            -webkit-font-smoothing: antialiased;
+            padding: 10px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 100%;
+            width: 100%;
+            background-color: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+        }
+
+        /* 最终结果 */
+        .final-result {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        #final-result {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        /* 信息行 */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .info-item {
+            padding: 8px 0;
+        }
+
+        /* 输入组 */
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            text-align: center;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        /* 按钮基础样式 */
+        button {
+            border: none;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        button:active {
+            transform: scale(0.96);
+            opacity: 0.9;
+        }
+
+        /* 卡片按钮 */
+        .card-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .card-button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            color: #333;
+        }
+
+        .card-button.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        /* 尿素行 */
+        .urea-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .urea-controls {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .urea-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            font-size: 1.2rem;
+            border: 1px solid #ddd;
+            color: #333;
+        }
+
+        #urea-input {
+            width: 60px;
+            margin: 0 5px;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .attendant-button {
+            padding: 10px 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            color: #333;
+        }
+
+        .attendant-button.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        /* 主要按钮 */
+        .primary-button {
+            width: 100%;
+            padding: 15px;
+            background-color: #28a745;
+            color: white;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            border: 1px solid #218838;
+        }
+
+        /* 图片按钮 */
+        .image-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .image-button {
+            flex: 1;
+            padding: 12px;
+            background-color: #f8f9fa;
+            color: #333;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            border: 1px solid #ddd;
+        }
+
+        /* 操作按钮 */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .secondary-button {
+            flex: 1;
+            padding: 12px;
+            background-color: #f8f9fa;
+            color: #333;
+            border-radius: 8px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 15px;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #777;
+        }
+
+        /* 记录列表 */
+        #records-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+
+        #records-list li {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            position: relative;
+        }
+
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .record-date {
+            font-weight: bold;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 0.8rem;
+        }
+
+        .record-detail {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .record-total {
+            margin-top: 8px;
+            font-weight: bold;
+            text-align: right;
+            color: #e74c3c;
+        }
+
+        /* 设置表单 */
+        .settings-group {
+            margin-bottom: 15px;
+        }
+
+        .settings-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .settings-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        /* 图片上传样式 */
+        .image-upload-group {
+            margin-bottom: 15px;
+        }
+
+        .image-upload-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .image-upload {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .image-upload input[type="file"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .image-preview {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            object-fit: cover;
+            display: none;
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 480px) {
+            #final-result {
+                font-size: 2.2rem;
+            }
+            
+            .card-button, .image-button, .secondary-button {
+                padding: 10px 8px;
+                font-size: 0.9rem;
+            }
+            
+            .primary-button {
+                padding: 14px;
+            }
+            
+            .input-group input {
+                padding: 12px;
+            }
+            
+            .urea-btn {
+                width: 32px;
+                height: 32px;
+            }
+            
+            #urea-input {
+                width: 50px;
+            }
+            
+            .modal-content {
+                padding: 15px;
+            }
+            
+            .image-upload {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* 防止iOS缩放 */
+        input, select, textarea {
+            font-size: 16px !important;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -60,16 +439,513 @@
             <button id="records-btn" class="secondary-button">记录查询</button>
         </div>
 
+        <!-- 设置模态框 -->
+        <div id="settings-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" id="close-settings">&times;</span>
+                <h2>设置</h2>
+                
+                <div class="settings-group">
+                    <label for="high-card-input">高价卡值 (元):</label>
+                    <input type="number" id="high-card-input" step="0.01" inputmode="decimal">
+                </div>
+                
+                <div class="settings-group">
+                    <label for="low-card-input">低价卡值 (元):</label>
+                    <input type="number" id="low-card-input" step="0.01" inputmode="decimal">
+                </div>
+                
+                <div class="settings-group">
+                    <label for="discount-input">基础优惠价 (元):</label>
+                    <input type="number" id="discount-input" step="0.01" inputmode="decimal">
+                </div>
+                
+                <div class="settings-group">
+                    <label for="attendant-input">加油员附加值 (元):</label>
+                    <input type="number" id="attendant-input" step="0.01" inputmode="decimal">
+                </div>
+                
+                <div class="settings-group">
+                    <label for="urea-price-input">尿素单价 (元):</label>
+                    <input type="number" id="urea-price-input" step="0.01" inputmode="decimal">
+                </div>
+                
+                <div class="settings-group">
+                    <label for="trigger-liter">升数触发条件:</label>
+                    <input type="number" id="trigger-liter" step="1" inputmode="numeric">
+                </div>
+                
+                <div class="settings-group">
+                    <label for="trigger-discount">触发优惠价 (元):</label>
+                    <input type="number" id="trigger-discount" step="0.01" inputmode="decimal">
+                </div>
+
+                <!-- 新增图片上传部分 -->
+                <div class="image-upload-group">
+                    <label>微信付款二维码:</label>
+                    <div class="image-upload">
+                        <input type="file" id="wechat-image" accept="image/*">
+                        <img id="wechat-preview" class="image-preview" alt="微信二维码预览">
+                    </div>
+                </div>
+                
+                <div class="image-upload-group">
+                    <label>信用卡付款二维码:</label>
+                    <div class="image-upload">
+                        <input type="file" id="credit-image" accept="image/*">
+                        <img id="credit-preview" class="image-preview" alt="信用卡二维码预览">
+                    </div>
+                </div>
+                
+                <div class="image-upload-group">
+                    <label>加入群聊二维码:</label>
+                    <div class="image-upload">
+                        <input type="file" id="group-image" accept="image/*">
+                        <img id="group-preview" class="image-preview" alt="群聊二维码预览">
+                    </div>
+                </div>
+                
+                <button id="save-settings" class="primary-button">保存设置</button>
+            </div>
+        </div>
+
         <!-- 记录查询模态框 -->
         <div id="records-modal" class="modal">
             <div class="modal-content">
-                <span class="close-btn">&times;</span>
+                <span class="close-btn" id="close-records">&times;</span>
                 <h2>记录查询</h2>
                 <ul id="records-list"></ul>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM元素
+            const elements = {
+                // 主界面元素
+                amountInput: document.getElementById('amount-input'),
+                highCardBtn: document.getElementById('high-card'),
+                lowCardBtn: document.getElementById('low-card'),
+                highCardValue: document.getElementById('high-card-value'),
+                lowCardValue: document.getElementById('low-card-value'),
+                ureaInput: document.getElementById('urea-input'),
+                ureaMinusBtn: document.getElementById('urea-minus'),
+                ureaPlusBtn: document.getElementById('urea-plus'),
+                attendantBtn: document.getElementById('attendant-btn'),
+                finalResult: document.getElementById('final-result'),
+                discountPrice: document.getElementById('discount-price'),
+                fuelLiter: document.getElementById('fuel-liter'),
+                confirmBtn: document.getElementById('confirm-btn'),
+                settingsBtn: document.getElementById('settings-btn'),
+                recordsBtn: document.getElementById('records-btn'),
+                wechatPayBtn: document.getElementById('wechat-pay'),
+                creditCardBtn: document.getElementById('credit-card'),
+                groupChatBtn: document.getElementById('group-chat'),
+                
+                // 模态框元素
+                settingsModal: document.getElementById('settings-modal'),
+                recordsModal: document.getElementById('records-modal'),
+                closeSettings: document.getElementById('close-settings'),
+                closeRecords: document.getElementById('close-records'),
+                recordsList: document.getElementById('records-list'),
+                
+                // 设置表单元素
+                highCardInput: document.getElementById('high-card-input'),
+                lowCardInput: document.getElementById('low-card-input'),
+                discountInput: document.getElementById('discount-input'),
+                attendantInput: document.getElementById('attendant-input'),
+                ureaPriceInput: document.getElementById('urea-price-input'),
+                triggerLiter: document.getElementById('trigger-liter'),
+                triggerDiscount: document.getElementById('trigger-discount'),
+                saveSettings: document.getElementById('save-settings'),
+                
+                // 图片上传元素
+                wechatImage: document.getElementById('wechat-image'),
+                creditImage: document.getElementById('credit-image'),
+                groupImage: document.getElementById('group-image'),
+                wechatPreview: document.getElementById('wechat-preview'),
+                creditPreview: document.getElementById('credit-preview'),
+                groupPreview: document.getElementById('group-preview')
+            };
+
+            // 状态管理
+            const state = {
+                selectedCard: 'high',
+                isAttendantActive: false,
+                currentAmount: 0,
+                currentUrea: 0
+            };
+
+            // 初始化设置
+            function initSettings() {
+                // 从localStorage加载或使用默认值
+                const settings = {
+                    highCardValue: '7.50',
+                    lowCardValue: '7.00',
+                    discountPrice: '0.50',
+                    attendantValue: '0.20',
+                    ureaPrice: '10.00',
+                    triggerLiter: '100',
+                    triggerDiscount: '1.00'
+                };
+
+                Object.keys(settings).forEach(key => {
+                    const value = localStorage.getItem(key) || settings[key];
+                    localStorage.setItem(key, value);
+                    if(elements[key + 'Input']) elements[key + 'Input'].value = value;
+                    if(elements[key]) elements[key].textContent = value;
+                });
+
+                // 加载图片预览
+                loadImagePreview('wechatPay', elements.wechatPreview);
+                loadImagePreview('creditCard', elements.creditPreview);
+                loadImagePreview('groupChat', elements.groupPreview);
+            }
+
+            // 加载图片预览
+            function loadImagePreview(type, previewElement) {
+                const imageUrl = localStorage.getItem(`${type}Image`);
+                if (imageUrl) {
+                    previewElement.src = imageUrl;
+                    previewElement.style.display = 'block';
+                }
+            }
+
+            // 核心计算函数
+            function calculate() {
+                // 解析金额输入
+                let amount = 0;
+                const inputValue = elements.amountInput.value.trim();
+                
+                if (inputValue.includes('+')) {
+                    amount = inputValue.split('+')
+                        .map(num => parseFloat(num.trim()) || 0)
+                        .reduce((sum, num) => sum + num, 0);
+                } else {
+                    amount = parseFloat(inputValue) || 0;
+                }
+                
+                state.currentAmount = amount;
+
+                // 获取当前卡值
+                const cardValue = parseFloat(
+                    state.selectedCard === 'high' 
+                        ? elements.highCardValue.textContent 
+                        : elements.lowCardValue.textContent
+                );
+
+                // 获取优惠参数
+                const baseDiscount = parseFloat(localStorage.getItem('discountPrice')) || 0.50;
+                const attendantValue = state.isAttendantActive 
+                    ? (parseFloat(localStorage.getItem('attendantValue')) || 0.20) 
+                    : 0;
+                
+                // 获取触发条件
+                const triggerLiter = parseFloat(localStorage.getItem('triggerLiter')) || 0;
+                const triggerDiscount = parseFloat(localStorage.getItem('triggerDiscount')) || 0;
+                
+                // 获取尿素参数
+                const ureaCount = parseInt(elements.ureaInput.value) || 0;
+                state.currentUrea = ureaCount;
+                const ureaPrice = parseFloat(localStorage.getItem('ureaPrice')) || 10.00;
+
+                // 计算升数
+                const liters = amount / cardValue;
+                
+                // 判断是否触发优惠
+                let finalDiscount = baseDiscount;
+                if(triggerLiter > 0 && liters >= triggerLiter) {
+                    finalDiscount = triggerDiscount;
+                }
+
+                // 计算总价
+                const discountTotal = liters * (finalDiscount + attendantValue);
+                const ureaTotal = ureaCount * ureaPrice;
+                const total = discountTotal + ureaTotal;
+
+                // 更新显示
+                elements.fuelLiter.textContent = liters.toFixed(2);
+                elements.discountPrice.textContent = (finalDiscount + attendantValue).toFixed(2);
+                elements.finalResult.textContent = total.toFixed(2);
+            }
+
+            // 保存记录
+            function saveRecord() {
+                if (!state.currentAmount || state.currentAmount <= 0) {
+                    alert('请输入有效的金额！');
+                    return;
+                }
+
+                const record = {
+                    date: new Date().toLocaleString(),
+                    amount: state.currentAmount.toFixed(2),
+                    cardType: state.selectedCard === 'high' ? '高价卡' : '低价卡',
+                    cardValue: state.selectedCard === 'high' 
+                        ? elements.highCardValue.textContent 
+                        : elements.lowCardValue.textContent,
+                    liters: elements.fuelLiter.textContent,
+                    discount: elements.discountPrice.textContent,
+                    attendant: state.isAttendantActive ? '是' : '否',
+                    urea: state.currentUrea,
+                    total: elements.finalResult.textContent,
+                    timestamp: Date.now()
+                };
+
+                // 保存记录
+                let records = JSON.parse(localStorage.getItem('records')) || [];
+                records.push(record);
+                localStorage.setItem('records', JSON.stringify(records));
+
+                // 重置界面
+                elements.amountInput.value = '';
+                elements.ureaInput.value = '0';
+                state.currentAmount = 0;
+                state.currentUrea = 0;
+                calculate();
+                
+                alert('记录已保存！');
+            }
+
+            // 加载记录
+            function loadRecords() {
+                cleanOldRecords();
+                elements.recordsList.innerHTML = '';
+                
+                const records = JSON.parse(localStorage.getItem('records')) || [];
+                if (records.length === 0) {
+                    elements.recordsList.innerHTML = '<li style="padding: 20px; text-align: center;">暂无记录</li>';
+                    return;
+                }
+
+                // 按时间倒序显示
+                records.reverse().forEach((record, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div class="record-header">
+                            <span class="record-date">${record.date}</span>
+                            <button class="delete-btn" data-index="${index}">删除</button>
+                        </div>
+                        <div class="record-detail">
+                            <span>金额: ${record.amount}元</span>
+                            <span>卡类型: ${record.cardType}</span>
+                        </div>
+                        <div class="record-detail">
+                            <span>升数: ${record.liters}升</span>
+                            <span>优惠价: ${record.discount}元</span>
+                        </div>
+                        <div class="record-detail">
+                            <span>尿素: ${record.urea}</span>
+                            <span>加油员: ${record.attendant}</span>
+                        </div>
+                        <div class="record-total">总计: ${record.total}元</div>
+                    `;
+                    elements.recordsList.appendChild(li);
+                });
+
+                // 添加删除事件
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        if (confirm('确定要删除这条记录吗？')) {
+                            deleteRecord(parseInt(this.getAttribute('data-index')));
+                        }
+                    });
+                });
+            }
+
+            // 删除记录
+            function deleteRecord(index) {
+                let records = JSON.parse(localStorage.getItem('records')) || [];
+                records.reverse();
+                records.splice(index, 1);
+                records.reverse();
+                localStorage.setItem('records', JSON.stringify(records));
+                loadRecords();
+            }
+
+            // 清理过期记录(3天)
+            function cleanOldRecords() {
+                const now = Date.now();
+                let records = JSON.parse(localStorage.getItem('records')) || [];
+                
+                records = records.filter(record => now - record.timestamp <= 3 * 24 * 60 * 60 * 1000);
+                localStorage.setItem('records', JSON.stringify(records));
+            }
+
+            // 处理图片上传
+            function handleImageUpload(inputElement, type, previewElement) {
+                const file = inputElement.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        localStorage.setItem(`${type}Image`, e.target.result);
+                        previewElement.src = e.target.result;
+                        previewElement.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // 显示图片
+            function showImage(type) {
+                const imageUrl = localStorage.getItem(`${type}Image`);
+                if (imageUrl) {
+                    const win = window.open('', '_blank');
+                    win.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>${type}</title>
+                            <style>
+                                body { margin: 0; padding: 0; display: flex; 
+                                       justify-content: center; align-items: center; 
+                                       height: 100vh; background: #000; }
+                                img { max-width: 100%; max-height: 100%; }
+                            </style>
+                        </head>
+                        <body onclick="window.close()">
+                            <img src="${imageUrl}">
+                        </body>
+                        </html>
+                    `);
+                } else {
+                    alert('请先在设置中上传图片');
+                }
+            }
+
+            // 初始化事件监听
+            function initEventListeners() {
+                // 输入事件
+                elements.amountInput.addEventListener('input', calculate);
+                elements.ureaInput.addEventListener('input', function() {
+                    state.currentUrea = parseInt(this.value) || 0;
+                    calculate();
+                });
+
+                // 卡片选择
+                elements.highCardBtn.addEventListener('click', function() {
+                    state.selectedCard = 'high';
+                    elements.highCardBtn.classList.add('active');
+                    elements.lowCardBtn.classList.remove('active');
+                    calculate();
+                });
+
+                elements.lowCardBtn.addEventListener('click', function() {
+                    state.selectedCard = 'low';
+                    elements.lowCardBtn.classList.add('active');
+                    elements.highCardBtn.classList.remove('active');
+                    calculate();
+                });
+
+                // 加油员开关
+                elements.attendantBtn.addEventListener('click', function() {
+                    state.isAttendantActive = !state.isAttendantActive;
+                    elements.attendantBtn.classList.toggle('active');
+                    calculate();
+                });
+
+                // 尿素数量
+                elements.ureaMinusBtn.addEventListener('click', function() {
+                    elements.ureaInput.value = Math.max(0, parseInt(elements.ureaInput.value) - 1);
+                    state.currentUrea = parseInt(elements.ureaInput.value);
+                    calculate();
+                });
+
+                elements.ureaPlusBtn.addEventListener('click', function() {
+                    elements.ureaInput.value = parseInt(elements.ureaInput.value) + 1;
+                    state.currentUrea = parseInt(elements.ureaInput.value);
+                    calculate();
+                });
+
+                // 主要功能按钮
+                elements.confirmBtn.addEventListener('click', saveRecord);
+                elements.settingsBtn.addEventListener('click', function() {
+                    // 加载当前设置值
+                    elements.highCardInput.value = localStorage.getItem('highCardValue') || '7.50';
+                    elements.lowCardInput.value = localStorage.getItem('lowCardValue') || '7.00';
+                    elements.discountInput.value = localStorage.getItem('discountPrice') || '0.50';
+                    elements.attendantInput.value = localStorage.getItem('attendantValue') || '0.20';
+                    elements.ureaPriceInput.value = localStorage.getItem('ureaPrice') || '10.00';
+                    elements.triggerLiter.value = localStorage.getItem('triggerLiter') || '100';
+                    elements.triggerDiscount.value = localStorage.getItem('triggerDiscount') || '1.00';
+                    
+                    elements.settingsModal.style.display = 'flex';
+                });
+
+                elements.recordsBtn.addEventListener('click', function() {
+                    loadRecords();
+                    elements.recordsModal.style.display = 'flex';
+                });
+
+                // 关闭模态框
+                elements.closeSettings.addEventListener('click', function() {
+                    elements.settingsModal.style.display = 'none';
+                });
+
+                elements.closeRecords.addEventListener('click', function() {
+                    elements.recordsModal.style.display = 'none';
+                });
+
+                // 图片按钮
+                elements.wechatPayBtn.addEventListener('click', () => showImage('wechatPay'));
+                elements.creditCardBtn.addEventListener('click', () => showImage('creditCard'));
+                elements.groupChatBtn.addEventListener('click', () => showImage('groupChat'));
+
+                // 图片上传事件
+                elements.wechatImage.addEventListener('change', function() {
+                    handleImageUpload(this, 'wechatPay', elements.wechatPreview);
+                });
+                
+                elements.creditImage.addEventListener('change', function() {
+                    handleImageUpload(this, 'creditCard', elements.creditPreview);
+                });
+                
+                elements.groupImage.addEventListener('change', function() {
+                    handleImageUpload(this, 'groupChat', elements.groupPreview);
+                });
+
+                // 保存设置
+                elements.saveSettings.addEventListener('click', function() {
+                    const settings = {
+                        highCardValue: elements.highCardInput.value,
+                        lowCardValue: elements.lowCardInput.value,
+                        discountPrice: elements.discountInput.value,
+                        attendantValue: elements.attendantInput.value,
+                        ureaPrice: elements.ureaPriceInput.value,
+                        triggerLiter: elements.triggerLiter.value,
+                        triggerDiscount: elements.triggerDiscount.value
+                    };
+
+                    // 验证设置
+                    if (!settings.highCardValue || !settings.lowCardValue || !settings.discountPrice || 
+                        !settings.attendantValue || !settings.ureaPrice || !settings.triggerLiter || 
+                        !settings.triggerDiscount) {
+                        alert('请填写所有设置项！');
+                        return;
+                    }
+
+                    // 保存设置
+                    Object.keys(settings).forEach(key => {
+                        localStorage.setItem(key, settings[key]);
+                        if(elements[key + 'Value']) elements[key + 'Value'].textContent = settings[key];
+                    });
+
+                    alert('设置已保存！');
+                    elements.settingsModal.style.display = 'none';
+                    calculate();
+                });
+            }
+
+            // 初始化应用
+            function initApp() {
+                initSettings();
+                initEventListeners();
+                calculate();
+            }
+
+            // 启动应用
+            initApp();
+        });
+    </script>
 </body>
 </html>
